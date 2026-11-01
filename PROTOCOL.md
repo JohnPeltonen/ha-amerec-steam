@@ -1,6 +1,6 @@
 # Amerec Elite (A6) panel: local UDP protocol
 
-What one panel actually sent on the local network. Tested on an Amerec AX7.5 steam generator with the Elite touchscreen, software 1.0.5013. The steamer was off for the first tests. In a later test the owner set the temperature and started and stopped the steamer from the wall panel while a script recorded the status. One start command has also been sent over the network, with the owner's go-ahead. No stop, temperature, timer or light command has been sent over the network yet.
+What one panel actually sent on the local network. Tested on an Amerec AX7.5 steam generator with the Elite touchscreen, software 1.0.5013. The steamer was off for the first tests. In a later test the owner set the temperature and started and stopped the steamer from the wall panel while a script recorded the status. Start, stop and set target have also been sent over the network, with the owner standing by the panel. No timer or light command has been sent over the network yet.
 
 Status words used here:
 
@@ -83,14 +83,21 @@ Changes made on the wall panel show up in the status within seconds, without any
 
 ## Commands
 
-Heat on works (observed): after connecting with HELLO, sending the two packets below changed the mode from 10 to 11 and the remaining time from 0 to 60 in the same second. The wall panel's stop button then stopped the steamer normally.
+Sent after connecting with HELLO. Each one took effect within about a second, and the status showed the change.
 
-The others come from skyer, for a sauna, and haven't been sent to this panel. They need testing with someone standing by the steamer:
+The wall panel's stop button also still works after a network start.
+
+**Observed on this panel:**
+
+| Action | Hex | Result |
+|---|---|---|
+| Heat on | `c24302500b`, then `d23e02081f` | Mode 10 to 11, remaining time 0 to 60 |
+| Heat off | `c24302500a`, then `d23e02081f` | Mode 11 to 10, remaining time to 0 |
+| Set target | `d24105080a10` + varint of raw value | 113°F (raw 408) and 114°F (raw 413) both read back correctly |
+
+**From skyer, for a sauna, not sent to this panel:**
 
 | Action | Hex (from skyer) |
 |---|---|
-| Heat on | `c24302500b`, then `d23e02081f` |
-| Heat off | `c24302500a`, then `d23e02081f` |
 | Light on / off | `a24204080a1001` / `a24204080a1000` |
-| Set target | `d24105080a10` + varint of °C × 9 |
 | Set stop minutes | `d24105080e10` + varint, then `d23e020801` |
