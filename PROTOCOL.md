@@ -23,7 +23,7 @@ The panel sends a packet from its control port to UDP 54377, in pairs, every 10 
 | 5 | Panel name, sent as a repeated field with one character per value. |
 | 3, 4, 6, 7 | Unknown |
 
-The control port stayed the same for 30 minutes. skyer reports it can change after a reboot. Not tested here.
+The control port stayed the same for the 22 minutes of testing. skyer reports it can change after a reboot. Not tested here.
 
 ## Connecting (observed)
 
