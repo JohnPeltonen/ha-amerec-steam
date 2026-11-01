@@ -79,7 +79,9 @@ skyer looks for the mode as the exact bytes `9280010258`. In these captures that
 
 ## Setting the clock
 
-Unknown. In the same decompile, the state change command (field 1080) has a `time` field (11) next to its `state` field (10), but the app only ever sets `state`, and no other message looks like a clock setting. Whether the panel uses that field as its clock hasn't been tested.
+Observed. The state change command (field 1080) has a `state` field (10) and a `time` field (11), named in the same decompile. The app only ever sets `state`. Sending state 10 (off) with `time` set, in ms since 2000-01-01 in local time, set the panel's clock: it went from 23:10 to 22:58 in the same second and kept correct time for the 2 minutes watched. The steamer was off throughout.
+
+Packet: `c24309500a58` + varint of the time. Send it only while the steamer is off, because it's also an off command. Its effect on a running steamer hasn't been tried.
 
 ## Timing (observed)
 

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import pytest
 from homeassistant.components.climate import (
     ATTR_CURRENT_TEMPERATURE,
@@ -15,7 +17,9 @@ from homeassistant.components.climate import (
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import ATTR_ENTITY_ID, ATTR_TEMPERATURE, STATE_UNAVAILABLE
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.util import dt as dt_util
 from homeassistant.util.unit_system import METRIC_SYSTEM, US_CUSTOMARY_SYSTEM
+from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
 from custom_components.amerec_steam import panel as panel_module
 
@@ -148,6 +152,23 @@ async def test_unload_closes_the_sockets_and_leaves_the_steamer_alone(hass, sim,
     assert all(transport.closed for transport in sim.transports)
     assert sim.mode == 11
     assert HEAT_OFF not in sim.sent
+
+
+async def test_clock_is_set_at_setup_and_at_three(hass, sim, loaded):
+    assert len(sim.clock_packets) == 1
+    next_three = (dt_util.now() + timedelta(days=1)).replace(hour=3, minute=0, second=0, microsecond=0)
+    async_fire_time_changed(hass, next_three)
+    await hass.async_block_till_done()
+    assert len(sim.clock_packets) == 2
+
+
+async def test_clock_isnt_set_while_running(hass, sim, loaded):
+    await call(hass, SERVICE_TURN_ON)
+    next_three = (dt_util.now() + timedelta(days=1)).replace(hour=3, minute=0, second=0, microsecond=0)
+    async_fire_time_changed(hass, next_three)
+    await hass.async_block_till_done()
+    assert len(sim.clock_packets) == 1
+    assert sim.mode == 11
 
 
 @pytest.mark.parametrize(

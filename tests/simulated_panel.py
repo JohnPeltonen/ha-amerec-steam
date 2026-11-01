@@ -60,6 +60,7 @@ class SimulatedPanel:
         self.ignore_target = False
         self.open_error: OSError | None = None
         self.sent: list[bytes] = []
+        self.clock_packets: list[bytes] = []
         self.transports: list[SimulatedTransport] = []
 
     async def open_udp(self, on_datagram, port: int) -> SimulatedTransport:
@@ -109,6 +110,9 @@ class SimulatedPanel:
                 self.mode, self.remaining = 10, 0
                 return self.status_packet()
             return None
+        if data.startswith(bytes.fromhex("c243")):
+            self.clock_packets.append(data)
+            return self.status_packet()
         if data.startswith(bytes.fromhex("d24105080a10")):
             if not self.ignore_target:
                 self.target = self.read_varint(data[6:])

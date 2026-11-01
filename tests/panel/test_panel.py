@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 import panel as panel_module
 import pytest
@@ -9,6 +10,7 @@ from panel import (
     Panel,
     PanelTimeoutError,
     PinRejectedError,
+    build_clock_packet,
     build_hello,
     celsius_to_raw,
     discover_panels,
@@ -235,6 +237,27 @@ async def test_commands_after_closing_raise(sim, connected):
 async def test_discover_returns_the_panels_heard(sim):
     assert await discover_panels(0.01) == {HOST: "Steam"}
     assert all(transport.closed for transport in sim.transports)
+
+
+def test_clock_packet_is_an_off_command_with_the_time():
+    packet = build_clock_packet(datetime(2026, 10, 31, 22, 58, 56))
+    fields = dict(iter_fields(next(value for _, value in iter_fields(packet))))
+    assert fields[10] == MODE_OFF
+    assert fields[11] == int((datetime(2026, 10, 31, 22, 58, 56) - datetime(2000, 1, 1)).total_seconds() * 1000)
+
+
+async def test_clock_is_set_while_off(sim, connected):
+    assert await connected.sync_clock(datetime(2026, 10, 31, 22, 58, 56))
+    await settle()
+    assert len(sim.clock_packets) == 1
+    assert HEAT_ON not in sim.sent
+
+
+async def test_clock_is_left_alone_while_running(sim, connected):
+    await connected.start()
+    assert not await connected.sync_clock(datetime(2026, 10, 31, 22, 58, 56))
+    assert sim.clock_packets == []
+    assert sim.mode == MODE_ON
 
 
 async def test_pin_never_reaches_the_debug_log(sim, caplog):

@@ -9,6 +9,7 @@ I built this for my own Amerec AX7.5, and it's provided as-is. It's written from
 - A climate entity: on and off, target temperature and current temperature, in °F or °C to match your Home Assistant setting.
 - A sensor for the time left on the panel's timer.
 - A PIN setting, in case yours isn't the default 0000.
+- The panel's clock is set to Home Assistant's time at setup and every day at 3:00am, while the steamer is off.
 
 Each start uses whatever run time the panel has set. Setting the run time from Home Assistant isn't in yet.
 

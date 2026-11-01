@@ -6,6 +6,7 @@ import socket
 import time
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,7 @@ FIELD_MODE = 2050
 STATUS_TARGET = 10
 STATUS_CURRENT = 12
 STATUS_REMAINING = 22
+CLOCK_START = datetime(2000, 1, 1)
 
 
 class PanelError(Exception):
@@ -147,6 +149,14 @@ def build_hello(pin: str) -> bytes:
         body += b"\x28" + encode_varint(ord(character))
     body += b"\x3a\x02\x50\x01"
     return b"\xc2\x3e" + encode_varint(len(body)) + bytes(body)
+
+
+def build_clock_packet(now: datetime) -> bytes:
+    """The off command with the time in its time field. The panel takes that as its clock, in local time."""
+    milliseconds = int((now.replace(tzinfo=None) - CLOCK_START).total_seconds() * 1000)
+    body = b"P
+X" + encode_varint(milliseconds)
+    return b"ÂC" + encode_varint(len(body)) + body
 
 
 def parse_announce(data: bytes) -> tuple[str | None, int | None, str]:
@@ -309,6 +319,14 @@ class Panel:
             self._send(SET_TARGET_PREFIX + encode_varint(raw), f"SET_TARGET {raw}")
             if not await self._wait_until(lambda: self.status.target_raw == raw, COMMAND_TIMEOUT):
                 raise NotConfirmedError("The target temperature didn't change")
+
+    async def sync_clock(self, now: datetime) -> bool:
+        """Set the panel's clock, only while the steamer is off, because this packet is also an off command."""
+        async with self._lock:
+            if self.status.mode != MODE_OFF:
+                return False
+            self._send(build_clock_packet(now), "SET_CLOCK")
+            return True
 
     async def _wait_until(self, check: Callable[[], bool], timeout: float) -> bool:
         loop = asyncio.get_running_loop()
