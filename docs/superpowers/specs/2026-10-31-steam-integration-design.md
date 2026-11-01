@@ -51,7 +51,7 @@ Success: the household stops using the panel's schedule, and the steam is ready 
 
 These need someone standing by the panel. Record the results in PROTOCOL.md.
 
-1. **Start while already running.** Does sending heat-on while running put the timer back to the full time? If it doesn't, try the set-stop command or a stop then start, and check whether a stop then start interrupts the steam.
+1. **Restart while running.** Done in part: heat-on while running is ignored and the timer keeps counting down. The owner's decision: the second alarm does a stop, then a start. Check that the timer goes back to the full time when this is built.
 2. **Set run time.** Does `d24105080e10` + varint, then `d23e020801`, change status ID 17? Does it change a run already in progress, and is it kept for later runs?
 3. **Natural timeout.** Set a 1-minute run time, start, and let it run out. Record the status sequence, which is what tells a timeout from a manual stop.
 4. **Above-limit run time.** Don't send a value above 60. Status ID 18 is assumed to be the panel's limit and the code enforces 60 itself.
