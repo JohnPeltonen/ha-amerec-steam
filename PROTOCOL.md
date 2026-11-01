@@ -37,7 +37,7 @@ Send these to the control port from any local UDP port:
 
 HELLO holds the PIN as text in its field 1000, sub-field 2 (`12 04 30 30 30 30` is `0000`). The rest of it is a client name, "Tylö remote control".
 
-The connect reply is field 2000. Its sub-field 1 is the status: 10 was returned here with PIN 0000. A pull request on the skyer repo reports that 10 means accepted and 20 means wrong PIN. Wrong PIN was not tested here.
+The connect reply is field 2000. Its sub-field 1 is the status: 10 was returned here with PIN 0000. A wrong PIN returned 20, with no status data after it. A pull request on the skyer repo reports the same meanings.
 
 The connect reply also has the panel name (sub-field 7), "Control Panel" (9) and the software version (10).
 

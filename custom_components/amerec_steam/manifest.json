@@ -1,0 +1,12 @@
+{
+  "domain": "amerec_steam",
+  "name": "Amerec Steam",
+  "codeowners": ["@JohnPeltonen"],
+  "config_flow": true,
+  "documentation": "https://github.com/JohnPeltonen/ha-amerec-steam",
+  "integration_type": "device",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/JohnPeltonen/ha-amerec-steam",
+  "requirements": [],
+  "version": "0.1.0"
+}

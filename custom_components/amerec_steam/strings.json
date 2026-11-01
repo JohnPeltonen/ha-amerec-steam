@@ -1,0 +1,53 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "This panel is already set up.",
+      "reconfigure_successful": "The settings were saved.",
+      "wrong_panel": "That address belongs to a different panel."
+    },
+    "error": {
+      "invalid_pin": "The PIN can only contain digits.",
+      "no_answer": "The panel didn't answer. Check the address, and that the panel is on the same network as Home Assistant.",
+      "unknown": "Something unexpected went wrong. The details are in the Home Assistant log.",
+      "wrong_pin": "The panel didn't accept that PIN."
+    },
+    "step": {
+      "reconfigure": {
+        "data": {
+          "host": "Panel IP address",
+          "pin": "PIN"
+        },
+        "title": "Change the panel's settings"
+      },
+      "user": {
+        "data": {
+          "host": "Panel IP address",
+          "pin": "PIN"
+        },
+        "data_description": {
+          "host": "Shown on the panel's Network screen. It's filled in here if the panel was found on the network.",
+          "pin": "The factory default is 0000."
+        },
+        "title": "Connect to the panel"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "time_remaining": {
+        "name": "Time remaining"
+      }
+    }
+  },
+  "exceptions": {
+    "no_answer": {
+      "message": "The panel didn't answer."
+    },
+    "not_confirmed": {
+      "message": "The command was sent, but the panel didn't show the change. Check the panel."
+    },
+    "wrong_pin": {
+      "message": "The panel didn't accept the PIN. Change it under Reconfigure."
+    }
+  }
+}
