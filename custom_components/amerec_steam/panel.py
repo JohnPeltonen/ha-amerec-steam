@@ -154,9 +154,8 @@ def build_hello(pin: str) -> bytes:
 def build_clock_packet(now: datetime) -> bytes:
     """The off command with the time in its time field. The panel takes that as its clock, in local time."""
     milliseconds = int((now.replace(tzinfo=None) - CLOCK_START).total_seconds() * 1000)
-    body = b"P
-X" + encode_varint(milliseconds)
-    return b"ÂC" + encode_varint(len(body)) + body
+    body = bytes.fromhex("500a58") + encode_varint(milliseconds)
+    return bytes.fromhex("c243") + encode_varint(len(body)) + body
 
 
 def parse_announce(data: bytes) -> tuple[str | None, int | None, str]:
