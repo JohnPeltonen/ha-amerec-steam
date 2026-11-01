@@ -93,6 +93,8 @@ Sent after connecting with HELLO. Each one took effect within about a second, an
 
 The wall panel's stop button also still works after a network start.
 
+Heat on while already running does nothing visible: the mode stayed 11 and the remaining time kept counting down (57, then 56). So it can't extend a run.
+
 **Observed on this panel:**
 
 | Action | Hex | Result |
