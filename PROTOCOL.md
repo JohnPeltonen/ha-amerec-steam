@@ -1,6 +1,6 @@
 # Amerec Elite (A6) panel: local UDP protocol
 
-What one panel actually sent on the local network. Tested on an Amerec AX7.5 steam generator with the Elite touchscreen, software 1.0.5013. The steamer was off for every test below. No start, stop, temperature, timer or light command has been sent yet.
+What one panel actually sent on the local network. Tested on an Amerec AX7.5 steam generator with the Elite touchscreen, software 1.0.5013. The steamer was off for the first tests. In a later test the owner set the temperature and started and stopped the steamer from the wall panel while a script recorded the status. No start, stop, temperature, timer or light command has been sent over the network yet.
 
 Status words used here:
 
@@ -49,31 +49,36 @@ Temperatures are °C × 9. To get °F: `raw / 5 + 32`.
 
 | ID | Raw value seen | Reads as | Meaning | Status |
 |---|---|---|---|---|
-| 10 | 418 | 115.6°F | Target temperature | From skyer |
+| 10 | 418, then 413 | 115.6°F, then 114.6°F | Target temperature. The panel showed 115, then 114 after it was set to 114. | Observed |
 | 12 | 198 and 207, flipping | 71.6 and 73.4°F (22 and 23°C) | Current temperature | From skyer. Changing by whole °C in this short sample. |
 | 13, 15 | 270 | 86°F (30°C) | Probably lowest allowed target | Unknown |
 | 14, 16 | 468 | 125.6°F (52°C) | Probably highest allowed target | Unknown |
 | 17 | 60 | 60 minutes | Configured stop time | From skyer |
 | 18 | 60 | 60 | Possibly the longest allowed stop time | Unknown |
 | 19, 20 | 0 | 0 | Humidity, current and target (skyer's order). Zero here. | From skyer |
-| 22 | 0 | 0 minutes | Remaining time, 0 when off | From skyer |
+| 22 | 0, 60, 59, 0 | Minutes | Remaining time. Went to 60 at start, 59 a minute later, 0 at stop. | Observed |
+| 26 | 258043, then 258044 | | Went up by 1 after a minute of running. Possibly total run time in minutes. | Unknown |
 | Others | | | | Unknown |
 
-Stored targets all end in .6 when converted to °F (105.6, 110.6, 112.6, 114.6, 115.6). That fits whole °F steps counted down from 52°C (125.6°F). How the panel rounds these for display isn't checked yet.
+Stored targets all end in .6 when converted to °F (105.6, 110.6, 112.6, 114.6, 115.6). The panel drops the decimal for display: raw 418 shows as 115°F, and setting 114°F stored raw 413. So for a whole °F target: `raw = (F - 32) * 5 + 3`.
 
 ## Other fields (observed)
 
 | Field | Contents |
 |---|---|
-| 2011 | More key and value pairs, on/off flags. skyer reads ID 10 as the light. |
+| 2011 | More key and value pairs, on/off flags. ID 10 went from 0 to 1 when the steamer started and stayed 1 after it stopped. skyer reads it as the light. |
 | 2030 | Sub-field 1 repeats the current temperature (raw 207 when the status said 207). |
-| 2040 | Favorites: slot (1), enabled (2), name (3), temperature (5), stop minutes (6). |
-| 2045 | Schedule slots: slot (1), enabled (2), start time in ms since 2000-01-01 by the panel's clock (3), stop minutes (4), temperature (6). |
-| 2050 | Sub-field 13 is the panel's clock, sent each minute. Sub-field 11 was 10, which skyer maps to off (11 = heat, 12 = standby). |
+| 2040 | Favorites: slot (1), enabled (2), name (3), temperature (5), stop minutes (6). skyer reads 7 as the light. |
+| 2045 | Schedule slots: slot (1), enabled (2), "ready at" time in ms since 2000-01-01 (3), stop minutes (4), temperature (6), favorite slot (10, used instead of 6). An entry set on the panel for 7:30am decoded to exactly 07:30, so there's no time zone offset. Deleting an entry sets enabled to 0 and removes the other fields. |
+| 2050 | Sub-field 13 is the panel's clock, sent each minute, in ms since 2000-01-01. Sub-field 11 is the mode: 10 = off, 11 = running (both observed). skyer maps 12 to standby. |
 | 2070 | Unknown. skyer ties it to steam aroma events. |
 | 2120 | A long list of character codes, sent repeatedly. Looks like the panel's font table, not status. |
 
 skyer looks for the mode as the exact bytes `9280010258`. In these captures that exact pattern didn't appear, even though sub-field 11 did. So a parser should read the fields, not match fixed bytes.
+
+## Timing (observed)
+
+Changes made on the wall panel show up in the status within seconds, without any request for them beyond the keepalive.
 
 ## Commands
 
