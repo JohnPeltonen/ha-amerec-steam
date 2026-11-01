@@ -14,6 +14,7 @@ ANNOUNCE_PORT = 54377
 CONNECTED = 10
 MODE_OFF = 10
 MODE_ON = 11
+MODE_STANDBY = 12
 
 # The target range the panel reports: 30 to 52 C.
 MIN_RAW = 270

@@ -106,6 +106,16 @@ async def test_change_at_the_wall_panel_shows_up(hass, sim, loaded):
     assert hass.states.get(REMAINING).state == "60"
 
 
+@pytest.mark.parametrize("mode", [13, 14, 15])
+async def test_dry_up_cleanup_and_descaling_dont_show_as_heating(hass, sim, loaded, mode):
+    sim.mode = mode
+    sim.push_status()
+    await hass.async_block_till_done()
+    state = hass.states.get(CLIMATE)
+    assert state.state == HVACMode.OFF
+    assert state.attributes[ATTR_HVAC_ACTION] == HVACAction.OFF
+
+
 async def test_start_the_panel_doesnt_confirm_shows_an_error(hass, sim, loaded):
     sim.ignore_start = True
     with pytest.raises(HomeAssistantError):

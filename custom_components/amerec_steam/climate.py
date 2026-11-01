@@ -12,8 +12,8 @@ from custom_components.amerec_steam import PanelConfigEntry
 from custom_components.amerec_steam.const import DOMAIN
 from custom_components.amerec_steam.entity import PanelEntity
 from custom_components.amerec_steam.panel import (
-    MODE_OFF,
     MODE_ON,
+    MODE_STANDBY,
     NotConfirmedError,
     Panel,
     PanelError,
@@ -27,6 +27,8 @@ MIN_FAHRENHEIT = 86
 MAX_FAHRENHEIT = 125
 MIN_CELSIUS = 30
 MAX_CELSIUS = 52
+# The panel also has dry-up, cleanup and descaling modes. None of those is a person's steam session.
+HEATING_MODES = (MODE_ON, MODE_STANDBY)
 
 
 async def async_setup_entry(
@@ -62,14 +64,14 @@ class SteamClimate(PanelEntity, ClimateEntity):
         mode = self.panel.status.mode
         if mode is None:
             return None
-        return HVACMode.OFF if mode == MODE_OFF else HVACMode.HEAT
+        return HVACMode.HEAT if mode in HEATING_MODES else HVACMode.OFF
 
     @property
     def hvac_action(self) -> HVACAction | None:
         mode = self.panel.status.mode
         if mode is None:
             return None
-        return HVACAction.OFF if mode == MODE_OFF else HVACAction.HEATING
+        return HVACAction.HEATING if mode in HEATING_MODES else HVACAction.OFF
 
     @property
     def target_temperature(self) -> int | None:

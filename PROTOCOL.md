@@ -70,12 +70,16 @@ Stored targets all end in .6 when converted to °F (105.6, 110.6, 112.6, 114.6, 
 | 2030 | Sub-field 1 repeats the current temperature (raw 207 when the status said 207). |
 | 2040 | Favorites: slot (1), enabled (2), name (3), temperature (5), stop minutes (6). skyer reads 7 as the light. |
 | 2045 | Schedule slots: slot (1), enabled (2), "ready at" time in ms since 2000-01-01 (3), stop minutes (4), temperature (6), favorite slot (10, used instead of 6). An entry set on the panel for 7:30am decoded to exactly 07:30, so there's no time zone offset. Deleting an entry sets enabled to 0 and removes the other fields. |
-| 2050 | Sub-field 13 is the panel's clock, sent each minute, in ms since 2000-01-01. Sub-field 11 is the mode: 10 = off, 11 = running (both observed). skyer maps 12 to standby. |
+| 2050 | Sub-field 13 is the panel's clock, sent each minute, in ms since 2000-01-01. Sub-field 11 is the mode: 10 = off, 11 = running (both observed). A public decompile of the Tylö app names the rest: 12 = standby, 13 = dry-up, 14 = cleanup, 15 = descaling. It also names sub-field 12 as "time valid". |
 | 2070 | Unknown. skyer ties it to steam aroma events. |
 | 2100 | Sub-field 12 moved 10, 11, 12 while running and went back to 11 after stopping. Possibly a generator stage. Meaning unknown. |
 | 2120 | A long list of character codes, sent repeatedly. Looks like the panel's font table, not status. |
 
 skyer looks for the mode as the exact bytes `9280010258`. In these captures that exact pattern didn't appear, even though sub-field 11 did. So a parser should read the fields, not match fixed bytes.
+
+## Setting the clock
+
+Unknown. In the same decompile, the state change command (field 1080) has a `time` field (11) next to its `state` field (10), but the app only ever sets `state`, and no other message looks like a clock setting. Whether the panel uses that field as its clock hasn't been tested.
 
 ## Timing (observed)
 
